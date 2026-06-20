@@ -1,0 +1,217 @@
+
+#include <iostream>
+#include <iomanip>
+#include <vector>
+#include <string>
+
+using namespace std;
+
+class Producto {
+private:
+    int id;
+    string nombre;
+    double precio;
+    int stock;
+
+public:
+    Producto() : id(0), nombre(""), precio(0.0), stock(0) {}
+
+    Producto(int id, string nombre, double precio, int stock) {
+        this->id = id;
+        this->nombre = nombre;
+        this->precio = precio;
+        this->stock = stock;
+    }
+
+    int getId() const { return id; }
+    string getNombre() const { return nombre; }
+    double getPrecio() const { return precio; }
+    int getStock() const { return stock; }
+
+    void setNombre(string nuevoNombre) { nombre = nuevoNombre; }
+    void setPrecio(double nuevoPrecio) { precio = nuevoPrecio; }
+    void setStock(int nuevoStock) { stock = nuevoStock; }
+};
+
+class CatalogoModelo {
+private:
+    vector<Producto> productos;
+    int siguienteId;
+
+public:
+    CatalogoModelo() : siguienteId(1) {}
+
+    int agregarProducto(string nombre, double precio, int stock) {
+        Producto nuevo(siguienteId, nombre, precio, stock);
+        productos.push_back(nuevo);
+        return siguienteId++;
+    }
+
+    bool eliminarProducto(int id) {
+        for (size_t i = 0; i < productos.size(); i++) {
+            if (productos[i].getId() == id) {
+                productos.erase(productos.begin() + i);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    Producto* buscarPorId(int id) {
+        for (size_t i = 0; i < productos.size(); i++) {
+            if (productos[i].getId() == id) {
+                return &productos[i];
+            }
+        }
+        return nullptr;
+    }
+
+    bool actualizarStock(int id, int nuevoStock) {
+        Producto* p = buscarPorId(id);
+        if (p == nullptr) return false;
+        p->setStock(nuevoStock);
+        return true;
+    }
+
+    vector<Producto> listarProductos() const {
+        return productos;
+    }
+};
+
+class CatalogoVista {
+public:
+    void mostrarTitulo() {
+        cout << "\n========================================\n";
+        cout << "      CATALOGO DE PRODUCTOS - MVC\n";
+        cout << "========================================\n";
+    }
+
+    void mostrarMenu() {
+        cout << "\n--- MENU PRINCIPAL ---\n";
+        cout << "1. Agregar producto\n";
+        cout << "2. Listar productos\n";
+        cout << "3. Actualizar stock\n";
+        cout << "4. Eliminar producto\n";
+        cout << "5. Salir\n";
+        cout << "Selecciona una opcion: ";
+    }
+
+    int leerOpcion() {
+        int opcion;
+        cin >> opcion;
+        return opcion;
+    }
+
+    void solicitarDatosProducto(string &nombre, double &precio, int &stock) {
+        cout << "\n-- Nuevo producto --\n";
+        cout << "Nombre: ";
+        cin.ignore();
+        getline(cin, nombre);
+        cout << "Precio: ";
+        cin >> precio;
+        cout << "Stock inicial: ";
+        cin >> stock;
+    }
+
+    int leerId(string mensaje) {
+        int id;
+        cout << mensaje;
+        cin >> id;
+        return id;
+    }
+
+    int leerNuevoStock() {
+        int stock;
+        cout << "Nuevo stock: ";
+        cin >> stock;
+        return stock;
+    }
+    void mostrarListaProductos(const vector<Producto>& productos) {
+        if (productos.empty()) {
+            cout << "\n(El catalogo esta vacio)\n";
+            return;
+        }
+        cout << "\n" << left << setw(5) << "ID"
+             << setw(20) << "Nombre"
+             << setw(12) << "Precio"
+             << setw(10) << "Stock" << "\n";
+        cout << "----------------------------------------------\n";
+        for (const auto &p : productos) {
+            cout << left << setw(5) << p.getId()
+                 << setw(20) << p.getNombre()
+                 << "$" << setw(11) << fixed << setprecision(2) << p.getPrecio()
+                 << setw(10) << p.getStock() << "\n";
+        }
+    }
+
+    void mostrarMensaje(string mensaje) {
+        cout << "\n>> " << mensaje << "\n";
+    }
+};
+
+class CatalogoControlador {
+private:
+    CatalogoModelo modelo;   
+    CatalogoVista vista;     
+
+    void accionAgregar() {
+        string nombre;
+        double precio;
+        int stock;
+        vista.solicitarDatosProducto(nombre, precio, stock);      
+        int id = modelo.agregarProducto(nombre, precio, stock);   
+        vista.mostrarMensaje("Producto agregado con id " + to_string(id));
+    }
+
+    void accionListar() {
+   
+        vista.mostrarListaProductos(modelo.listarProductos());
+    }
+
+    void accionActualizarStock() {
+        int id = vista.leerId("ID del producto a actualizar: ");
+        int nuevoStock = vista.leerNuevoStock();
+        bool exito = modelo.actualizarStock(id, nuevoStock);
+        if (exito) {
+            vista.mostrarMensaje("Stock actualizado correctamente.");
+        } else {
+            vista.mostrarMensaje("No se encontro un producto con ese id.");
+        }
+    }
+
+    void accionEliminar() {
+        int id = vista.leerId("ID del producto a eliminar: ");
+        bool exito = modelo.eliminarProducto(id);
+        if (exito) {
+            vista.mostrarMensaje("Producto eliminado.");
+        } else {
+            vista.mostrarMensaje("No se encontro un producto con ese id.");
+        }
+    }
+
+public:
+    void ejecutar() {
+        vista.mostrarTitulo();
+        int opcion = 0;
+        do {
+            vista.mostrarMenu();
+            opcion = vista.leerOpcion();
+
+            switch (opcion) {
+                case 1: accionAgregar(); break;
+                case 2: accionListar(); break;
+                case 3: accionActualizarStock(); break;
+                case 4: accionEliminar(); break;
+                case 5: vista.mostrarMensaje("Saliendo del programa..."); break;
+                default: vista.mostrarMensaje("Opcion invalida, intenta de nuevo.");
+            }
+        } while (opcion != 5);
+    }
+};
+
+
+int main() {
+    CatalogoControlador app;   
+    app.ejecutar();
+    return 0;
+}
