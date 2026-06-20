@@ -1,0 +1,7 @@
+#include "Controller.h"
+
+int main() {
+    CatalogoControlador app;
+    app.ejecutar();
+    return 0;
+}
