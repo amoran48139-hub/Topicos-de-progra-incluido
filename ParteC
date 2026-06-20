@@ -1,0 +1,66 @@
+#ifndef CONTROLLER_H
+#define CONTROLLER_H
+
+#include "Model.h"
+#include "View.h"
+
+class CatalogoControlador {
+private:
+    CatalogoModelo modelo;
+    CatalogoVista vista;
+
+    void accionAgregar() {
+        string nombre;
+        double precio;
+        int stock;
+        vista.solicitarDatosProducto(nombre, precio, stock);
+        int id = modelo.agregarProducto(nombre, precio, stock);
+        vista.mostrarMensaje("Producto agregado con id " + to_string(id));
+    }
+
+    void accionListar() {
+        vista.mostrarListaProductos(modelo.listarProductos());
+    }
+
+    void accionActualizarStock() {
+        int id = vista.leerId("ID del producto a actualizar: ");
+        int nuevoStock = vista.leerNuevoStock();
+        bool exito = modelo.actualizarStock(id, nuevoStock);
+        if (exito) {
+            vista.mostrarMensaje("Stock actualizado correctamente.");
+        } else {
+            vista.mostrarMensaje("No se encontro un producto con ese id.");
+        }
+    }
+
+    void accionEliminar() {
+        int id = vista.leerId("ID del producto a eliminar: ");
+        bool exito = modelo.eliminarProducto(id);
+        if (exito) {
+            vista.mostrarMensaje("Producto eliminado.");
+        } else {
+            vista.mostrarMensaje("No se encontro un producto con ese id.");
+        }
+    }
+
+public:
+    void ejecutar() {
+        vista.mostrarTitulo();
+        int opcion = 0;
+        do {
+            vista.mostrarMenu();
+            opcion = vista.leerOpcion();
+
+            switch (opcion) {
+                case 1: accionAgregar(); break;
+                case 2: accionListar(); break;
+                case 3: accionActualizarStock(); break;
+                case 4: accionEliminar(); break;
+                case 5: vista.mostrarMensaje("Saliendo del programa..."); break;
+                default: vista.mostrarMensaje("Opcion invalida, intenta de nuevo.");
+            }
+        } while (opcion != 5);
+    }
+};
+
+#endif
