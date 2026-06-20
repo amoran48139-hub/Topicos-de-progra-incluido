@@ -1,0 +1,83 @@
+#ifndef VIEW_H
+#define VIEW_H
+
+#include <iostream>
+#include <iomanip>
+#include <vector>
+#include "Model.h"
+
+using namespace std;
+
+class CatalogoVista {
+public:
+    void mostrarTitulo() {
+        cout << "\n========================================\n";
+        cout << "      CATALOGO DE PRODUCTOS - MVC\n";
+        cout << "========================================\n";
+    }
+
+    void mostrarMenu() {
+        cout << "\n--- MENU PRINCIPAL ---\n";
+        cout << "1. Agregar producto\n";
+        cout << "2. Listar productos\n";
+        cout << "3. Actualizar stock\n";
+        cout << "4. Eliminar producto\n";
+        cout << "5. Salir\n";
+        cout << "Selecciona una opcion: ";
+    }
+
+    int leerOpcion() {
+        int opcion;
+        cin >> opcion;
+        return opcion;
+    }
+
+    void solicitarDatosProducto(string &nombre, double &precio, int &stock) {
+        cout << "\n-- Nuevo producto --\n";
+        cout << "Nombre: ";
+        cin.ignore();
+        getline(cin, nombre);
+        cout << "Precio: ";
+        cin >> precio;
+        cout << "Stock inicial: ";
+        cin >> stock;
+    }
+
+    int leerId(string mensaje) {
+        int id;
+        cout << mensaje;
+        cin >> id;
+        return id;
+    }
+
+    int leerNuevoStock() {
+        int stock;
+        cout << "Nuevo stock: ";
+        cin >> stock;
+        return stock;
+    }
+
+    void mostrarListaProductos(const vector<Producto>& productos) {
+        if (productos.empty()) {
+            cout << "\n(El catalogo esta vacio)\n";
+            return;
+        }
+        cout << "\n" << left << setw(5) << "ID"
+             << setw(20) << "Nombre"
+             << setw(12) << "Precio"
+             << setw(10) << "Stock" << "\n";
+        cout << "----------------------------------------------\n";
+        for (const auto &p : productos) {
+            cout << left << setw(5) << p.getId()
+                 << setw(20) << p.getNombre()
+                 << "$" << setw(11) << fixed << setprecision(2) << p.getPrecio()
+                 << setw(10) << p.getStock() << "\n";
+        }
+    }
+
+    void mostrarMensaje(string mensaje) {
+        cout << "\n>> " << mensaje << "\n";
+    }
+};
+
+#endif
