@@ -1,0 +1,85 @@
+#ifndef MODEL_H
+#define MODEL_H
+
+#include <string>
+#include <vector>
+
+using namespace std;
+
+class Producto {
+private:
+    int id;
+    string nombre;
+    double precio;
+    int stock;
+
+public:
+    Producto() : id(0), nombre(""), precio(0.0), stock(0) {}
+
+    Producto(int id, string nombre, double precio, int stock) {
+        this->id = id;
+        this->nombre = nombre;
+        this->precio = precio;
+        this->stock = stock;
+    }
+
+    int getId() const { return id; }
+    string getNombre() const { return nombre; }
+    double getPrecio() const { return precio; }
+    int getStock() const { return stock; }
+
+    void setNombre(string nuevoNombre) { nombre = nuevoNombre; }
+    void setPrecio(double nuevoPrecio) { precio = nuevoPrecio; }
+    void setStock(int nuevoStock) { stock = nuevoStock; }
+};
+
+class CatalogoModelo {
+private:
+    vector<Producto> productos;
+    int siguienteId;
+
+public:
+    CatalogoModelo() : siguienteId(1) {}
+
+    int agregarProducto(string nombre, double precio, int stock) {
+        Producto nuevo(siguienteId, nombre, precio, stock);
+        productos.push_back(nuevo);
+        return siguienteId++;
+    }
+
+    bool eliminarProducto(int id) {
+        for (size_t i = 0; i < productos.size(); i++) {
+            if (productos[i].getId() == id) {
+                productos.erase(productos.begin() + i);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    Producto* buscarPorId(int id) {
+        for (size_t i = 0; i < productos.size(); i++) {
+            if (productos[i].getId() == id) {
+                return &productos[i];
+            }
+        }
+        return nullptr;
+    }
+
+    bool actualizarStock(int id, int nuevoStock) {
+        Producto* p = buscarPorId(id);
+        if (p == nullptr) return false;
+        p->setStock(nuevoStock);
+        return true;
+    }
+
+    vector<Producto> listarProductos() const {
+        return productos;
+    }
+
+    bool estaVacio() const {
+        return productos.empty();
+    }
+};
+
+#endif
